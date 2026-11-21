@@ -2,6 +2,5 @@
 
 double CurrentSource::get_current() const
 {
-  // TODO
-  return 0.0;
+  return get_value();
 }
