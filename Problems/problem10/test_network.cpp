@@ -295,3 +295,48 @@ TEST_CASE("Network: Test CurrentDivider", "[network]")
   REQUIRE_THROWS_AS(div.set_resistance(-1, 100.0), std::out_of_range);
   REQUIRE_THROWS_AS(div.set_resistance(2, 1000.0), std::out_of_range);
 }
+
+TEST_CASE("Network: Test PracticalVsCircuit", "[network]")
+{
+  PracticalVsCircuit pvsc(24.0, 4.0, 8.0);
+
+  REQUIRE(compare_double(pvsc.get_source_voltage(), 16.0));
+  REQUIRE_FALSE(pvsc.maximum_power_transfer(20.0));
+
+  pvsc.set_load(4.0);
+  REQUIRE(compare_double(pvsc.get_source_voltage(), 12.0));
+  REQUIRE(compare_double(pvsc.get_load_power(), 36.0));
+
+  REQUIRE_FALSE(pvsc.maximum_power_transfer(12.0));
+  REQUIRE(compare_double(pvsc.get_source_voltage(), 18.0));
+  REQUIRE(compare_double(pvsc.get_load_power(), 27.0));
+  REQUIRE(pvsc.maximum_power_transfer(4.0));
+  REQUIRE(compare_double(pvsc.get_load_power(), 36.0));
+  
+  REQUIRE_THROWS_AS(PracticalVsCircuit(24.0, -4.0, 8.0), std::invalid_argument);
+  REQUIRE_THROWS_AS(PracticalVsCircuit(24.0, 4.0, -8.0), std::invalid_argument);
+  REQUIRE_THROWS_AS(pvsc.set_load(-20.0), std::invalid_argument);
+  REQUIRE_THROWS_AS(pvsc.maximum_power_transfer(-1.0), std::invalid_argument);
+
+  VoltageDivider* vd_ptr = new PracticalVsCircuit(24.0, 4.0, 8.0);
+  REQUIRE(compare_double(vd_ptr->get_source_voltage(), 16.0));
+  REQUIRE(compare_double(vd_ptr->VoltageDivider::get_source_voltage(), 24.0));
+
+  Network* nw_ptr = new PracticalVsCircuit(24.0, 4.0, 8.0);
+  REQUIRE(compare_double(nw_ptr->get_node_voltage(0), 0.0));
+  REQUIRE(compare_double(nw_ptr->get_node_voltage(1), 24.0));
+  REQUIRE(compare_double(nw_ptr->get_node_voltage(2), 16.0));
+
+  delete nw_ptr;
+  delete vd_ptr;
+
+  Resistor r;
+  r.set_value(10.0);
+
+  Component& comp_ref = r;
+  Component* comp_ptr = &r;
+
+  REQUIRE_THROWS_AS(comp_ref.set_value(-1.0), std::invalid_argument);
+  REQUIRE_THROWS_AS(comp_ptr->set_value(-1.0), std::invalid_argument);
+  REQUIRE(compare_double(r.get_value(), 10.0));
+} 

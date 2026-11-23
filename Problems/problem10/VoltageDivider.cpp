@@ -32,7 +32,7 @@ VoltageDivider::VoltageDivider(double v, double res[], int num_res) : Network(nu
 
 void VoltageDivider::update_node_voltages() {
     int num_res = get_num_resistors();
-    double vs = get_source_voltage();
+    double vs = get_component_value(0);
 
     set_node_voltage(0, 0.0);
     set_node_voltage(1, vs);
