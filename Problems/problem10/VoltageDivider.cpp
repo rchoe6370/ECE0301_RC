@@ -1,24 +1,28 @@
 #include "VoltageDivider.hpp"
 #include <stdexcept>
 
+// Constructor calls Network in initialiser list
 VoltageDivider::VoltageDivider(double v, double res[], int num_res) : Network(num_res + 1, num_res + 1)
 {
     if (num_res < 1) {
-        throw std::invalid_argument("Number of resistors must be > 1");
+        throw std::invalid_argument("Number of resistors must be >= 1");
     }
 
+    // Network takes ownership of the VoltageSource   
     VoltageSource *vs = new VoltageSource();
     set_component(0, vs);
     connect_component_terminal_a(0, 0);
     connect_component_terminal_b(0, 1);
     set_component_value(0, v);
 
+    // Adding resistors to the netork
     for (int i = 0; i < num_res; i++) {
         Resistor* r = new Resistor();
         int index = i + 1;
         set_component(index, r);
 
-        int node_b = i + 1;
+        int node_b = i + 1; 
+        // Last resistor goes to ground
         int node_a = (i == num_res - 1) ? 0 : (i + 2);
 
         connect_component_terminal_b(index, node_b);
@@ -27,9 +31,12 @@ VoltageDivider::VoltageDivider(double v, double res[], int num_res) : Network(nu
         set_component_value(index, res[i]);
     }
 
+    // Calcs initial node voltages in the network
     update_node_voltages();
 }
 
+// Recomputes the node voltages
+// Must be called after changes to components
 void VoltageDivider::update_node_voltages() {
     int num_res = get_num_resistors();
     double vs = get_component_value(0);
@@ -42,6 +49,7 @@ void VoltageDivider::update_node_voltages() {
         r_eq += get_resistance(i);
     }
 
+    // Series circuit has same current through all resistors
     double current = vs / r_eq;
 
     double v_curr = vs;

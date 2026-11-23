@@ -214,6 +214,7 @@ TEST_CASE("Network: Test VoltageDivider", "[network]")
   REQUIRE(compare_double(div.get_resistance(0), 200));
   REQUIRE(compare_double(div.get_resistance(1), 400));
 
+  // Checking node voltages are correct
   double curr = voltage / 600;
   REQUIRE(compare_double(div.get_loop_current(), curr));
   REQUIRE(compare_double(div.get_node_voltage(0), 0.0));
@@ -266,6 +267,7 @@ TEST_CASE("Network: Test CurrentDivider", "[network]")
   REQUIRE(compare_double(div.get_resistance(0), 15000.0));
   REQUIRE(compare_double(div.get_resistance(1), 75000.0));
 
+  // Test node voltages are appropriate and currents
   REQUIRE(compare_double(div.get_node_voltage(0), 0.0));
   REQUIRE(compare_double(div.get_node_voltage(1), 75.0));
   REQUIRE(compare_double(div.get_resistor_current(0), 0.005));
@@ -300,9 +302,12 @@ TEST_CASE("Network: Test PracticalVsCircuit", "[network]")
 {
   PracticalVsCircuit pvsc(24.0, 4.0, 8.0);
 
+  // Real voltage source voltage
   REQUIRE(compare_double(pvsc.get_source_voltage(), 16.0));
+  // Rl = 20 Ohms is not Rs
   REQUIRE_FALSE(pvsc.maximum_power_transfer(20.0));
 
+  // Setting Rl to 4 ohms and testing new values
   pvsc.set_load(4.0);
   REQUIRE(compare_double(pvsc.get_source_voltage(), 12.0));
   REQUIRE(compare_double(pvsc.get_load_power(), 36.0));
@@ -310,18 +315,24 @@ TEST_CASE("Network: Test PracticalVsCircuit", "[network]")
   REQUIRE_FALSE(pvsc.maximum_power_transfer(12.0));
   REQUIRE(compare_double(pvsc.get_source_voltage(), 18.0));
   REQUIRE(compare_double(pvsc.get_load_power(), 27.0));
+
+  // Maximum power 
   REQUIRE(pvsc.maximum_power_transfer(4.0));
   REQUIRE(compare_double(pvsc.get_load_power(), 36.0));
   
+  // Negative resistance exceptions
   REQUIRE_THROWS_AS(PracticalVsCircuit(24.0, -4.0, 8.0), std::invalid_argument);
   REQUIRE_THROWS_AS(PracticalVsCircuit(24.0, 4.0, -8.0), std::invalid_argument);
   REQUIRE_THROWS_AS(pvsc.set_load(-20.0), std::invalid_argument);
   REQUIRE_THROWS_AS(pvsc.maximum_power_transfer(-1.0), std::invalid_argument);
 
+  // Testing polymorphism
+  // Override returns real voltage while VoltageDivider returns ideal
   VoltageDivider* vd_ptr = new PracticalVsCircuit(24.0, 4.0, 8.0);
   REQUIRE(compare_double(vd_ptr->get_source_voltage(), 16.0));
   REQUIRE(compare_double(vd_ptr->VoltageDivider::get_source_voltage(), 24.0));
 
+  // When looking through Network, the the circuit behaves as a voltage source and two resistors in series
   Network* nw_ptr = new PracticalVsCircuit(24.0, 4.0, 8.0);
   REQUIRE(compare_double(nw_ptr->get_node_voltage(0), 0.0));
   REQUIRE(compare_double(nw_ptr->get_node_voltage(1), 24.0));
@@ -330,6 +341,8 @@ TEST_CASE("Network: Test PracticalVsCircuit", "[network]")
   delete nw_ptr;
   delete vd_ptr;
 
+  // Resistor set_value() is virtual so a Component reference/pointer still rejects negatives
+  // Stored value remains unchanged
   Resistor r;
   r.set_value(10.0);
 

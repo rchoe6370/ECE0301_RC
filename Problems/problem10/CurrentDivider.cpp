@@ -4,15 +4,17 @@
 
 CurrentDivider::CurrentDivider(double c, double res[], int num_res) : Network(2, num_res + 1) {
     if (num_res < 1) {
-        throw std::invalid_argument("Number of resistors must be > 1");
+        throw std::invalid_argument("Number of resistors must be >= 1");
     }
 
+    // Only two nodes, bottom (ground) and top
     CurrentSource* cs = new CurrentSource();
     set_component(0, cs);
     connect_component_terminal_a(0, 0);
     connect_component_terminal_b(0, 1);
     set_component_value(0, c);
 
+    // All resistors connect to ground or top node
     for (int i = 0; i < num_res; i++) {
         Resistor* r = new Resistor();
         int index = i + 1;
@@ -35,6 +37,7 @@ void CurrentDivider::update_node_voltages() {
 
     double r_eq = get_resistance(0);
 
+    // Adding resistors in parallel
     for (int i = 1; i < num_res; i++) {
         double r_i = get_resistance(i);
 
@@ -42,6 +45,7 @@ void CurrentDivider::update_node_voltages() {
 
     }
 
+    // Voltage = req * current source
     double nv = cs * r_eq;
     set_node_voltage(1, nv);
 }
