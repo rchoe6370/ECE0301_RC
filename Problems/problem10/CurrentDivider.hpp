@@ -9,7 +9,7 @@ class CurrentDivider : public Network
 {
 private:
   // TODO: little to no here, only add private ones when necessary
-
+  void update_node_voltages();
 public:
   CurrentDivider(double c, double res[], int num_res);
   int get_num_resistors() const;
