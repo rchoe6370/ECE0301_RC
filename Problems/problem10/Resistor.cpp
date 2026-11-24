@@ -11,7 +11,7 @@ void Resistor::set_value(double r)
   Component::set_value(r);
 }
 
-// Ohm's alw
+// Ohm's law I = V/R
 double Resistor::get_current() const
 {
   double r = Component::get_value();

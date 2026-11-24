@@ -6,7 +6,6 @@
 class PracticalVsCircuit : public VoltageDivider
 {
 private:
-  // TODO: little to no here, only add private ones when necessary
 public:
   PracticalVsCircuit(double vs, double rs, double rl);
 

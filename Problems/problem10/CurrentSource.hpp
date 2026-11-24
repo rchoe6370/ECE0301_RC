@@ -5,9 +5,6 @@
 
 class CurrentSource : public Component
 {
-  // only define private members not in base class
-  // most likely none needed
-
 public:
   using Component::Component;
   double get_current() const override;

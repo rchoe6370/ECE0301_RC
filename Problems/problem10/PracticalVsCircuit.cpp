@@ -17,6 +17,7 @@ void PracticalVsCircuit::set_load(double rl) {
     set_resistance(1, rl);
 }
 
+// Using P = v^2/R to get power of load resistor
 double PracticalVsCircuit::get_load_power() const {
     double vl = get_resistor_voltage(1);
     double rl = get_resistance(1);
@@ -31,6 +32,8 @@ bool PracticalVsCircuit::maximum_power_transfer(double rl) {
 
     double vs = VoltageDivider::get_source_voltage();
     double rs = get_resistance(0);
+
+    // max power in thevenin circuit
     double p_max = (vs * vs) / (4.0 * rs);
 
     return std::abs(p_max - get_load_power()) < 1e-9;

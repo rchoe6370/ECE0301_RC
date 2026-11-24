@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 
+// Calls Network in initializer list, two nodes
 CurrentDivider::CurrentDivider(double c, double res[], int num_res) : Network(2, num_res + 1) {
     if (num_res < 1) {
         throw std::invalid_argument("Number of resistors must be >= 1");
@@ -29,6 +30,8 @@ CurrentDivider::CurrentDivider(double c, double res[], int num_res) : Network(2,
     update_node_voltages();
 }
 
+// Similar to function in VoltageDivider
+// Updates node voltages after components chnage
 void CurrentDivider::update_node_voltages() {
     int num_res = get_num_resistors();
     double cs = get_source_current();
@@ -45,7 +48,7 @@ void CurrentDivider::update_node_voltages() {
 
     }
 
-    // Voltage = req * current source
+    // top node = req * current source
     double nv = cs * r_eq;
     set_node_voltage(1, nv);
 }

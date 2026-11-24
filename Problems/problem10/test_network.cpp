@@ -222,6 +222,7 @@ TEST_CASE("Network: Test VoltageDivider", "[network]")
   REQUIRE(compare_double(div.get_node_voltage(2), 10.0/3.0));
 
   // Testing setting source voltage
+  // New current value through circuit
   div.set_source_voltage(6.0);
   curr = 6.0 / 600.0;
   REQUIRE(compare_double(div.get_source_voltage(), 6.0));
@@ -232,6 +233,7 @@ TEST_CASE("Network: Test VoltageDivider", "[network]")
   REQUIRE(compare_double(div.get_resistor_voltage(1), 4.0));
 
   // Testing setting new resistance
+  // Appropriate voltages should be updated
   div.set_resistance(1, 800.0);
   curr = 6.0 / 10.0;
   REQUIRE(compare_double(div.get_resistance(1), 800.0));
